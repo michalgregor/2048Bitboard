@@ -10,23 +10,19 @@ int main() {
 //	HumanPlayer player;
 	LegalPlayer player;
 
-	for(unsigned int i = 0; i < 100000; i++) {
+	GameBoard board;
+	std::cout << "score: " << board.getScore() << "\n\n";
+	std::cout << board << std::endl;
 
-		GameBoard board;
-//		std::cout << "score: " << board.getScore() << "\n\n";
-//		std::cout << board << std::endl;
+	while(!board.isGameOver()) {
+		auto move = player.selectAction(board);
+		board.move(move);
 
-		while(!board.isGameOver()) {
-			auto move = player.selectAction(board);
-			board.move(move);
+		clear();
+		std::cout << board << std::endl;
 
-//			clear();
-//			std::cout << board << std::endl;
-//	
-//			std::cout << "score: " << board.getScore() << "\n\n";
-//			std::cout << board << std::endl;
-		}
-
+		std::cout << "score: " << board.getScore() << "\n\n";
+		std::cout << board << std::endl;
 	}
 }
 
