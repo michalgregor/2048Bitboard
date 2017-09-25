@@ -250,24 +250,37 @@ public:
 private:
 	board_t _board;
 
-
-
-
+	// cache
+	mutable board_t _up = 0;
+	mutable board_t _down = 0;
+	mutable board_t _left = 0;
+	mutable board_t _right = 0;
+	mutable std::vector<GameAction> _legals;
 
 protected:
-	static inline board_t execute_deterministic_move(board_t board, GameAction action) {
+	void clearCache() const {
+		_up = 0; _down = 0; _left = 0; _right = 0;
+		_legals.clear(); _legals.reserve(4);
+	}
+
+protected:
+	inline board_t execute_deterministic_move(GameAction action) const {
 		switch(action) {
 		case UP:
-			return execute_up(board);
+			if(!_up) _up = execute_up(_board);
+			return _up;
 		break;
 		case DOWN:
-			return execute_down(board);
+			if(!_down) _down = execute_down(_board);
+			return _down;
 		break;
 		case LEFT:
-			return execute_left(board);
+			if(!_left) _left = execute_left(_board);
+			return _left;
 		break;
 		case RIGHT:
-			return execute_right(board);
+			if(!_right) _right = execute_right(_board);
+			return _right;
 		break;
 		case None:
 		break;
@@ -276,7 +289,7 @@ protected:
 		}
 
 		// this should never be reached, it is just to suppress warnings
-		return board;
+		return _board;
 	}
 
 public:
@@ -286,22 +299,23 @@ public:
 	inline GameBoard transpose() const {return transpose_board(_board);}
 
 	inline void move(GameAction action) {
-		auto new_board = execute_deterministic_move(_board, action);
+		auto new_board = execute_deterministic_move(action);
 		if(new_board == _board) {
 			/** Do we throw exceptions on illegal actions? **/
 		} else {
 			_board = insert_tile_rand(new_board, draw_tile());
+			clearCache();
 		}
 	}
 
 	inline float getScore() const {return score_board(_board);}
 
 	inline board_t getBoardState() const {return _board;}
-	inline void setBoardState(board_t boardState) {_board = boardState;}
+	inline void setBoardState(board_t boardState) {_board = boardState; clearCache();}
 
 	//! Puts the board into its starting position, first clearning all bits and
 	//! the randomly generating a new starting state.
-	inline void initBoard() {_board = make_init_board();}
+	inline void initBoard() {_board = make_init_board(); clearCache();}
 
 public:
 	unsigned int rows() const {return ROWS;}
@@ -319,18 +333,31 @@ public:
 
 
 
-	std::vector<GameAction> legalActions() const {
-		std::vector<GameAction> legals; legals.reserve(4);
-		if(_board != execute_up(_board)) legals.push_back(UP);
-		if(_board != execute_down(_board)) legals.push_back(DOWN);
-		if(_board != execute_left(_board)) legals.push_back(LEFT);
-		if(_board != execute_right(_board)) legals.push_back(RIGHT);
-		return legals;
+	const std::vector<GameAction>& legalActions() const {
+		if(_legals.size() or !_legals.capacity()) return _legals;
+
+		if(!_up) _up = execute_up(_board);
+		if(_board != _up) _legals.push_back(UP);
+
+		if(!_down) _down = execute_down(_board);
+		if(_board != _down) _legals.push_back(DOWN);
+
+		if(!_left) _left = execute_left(_board);
+		if(_board != _left) _legals.push_back(LEFT);
+
+		if(!_right) _right = execute_right(_board);
+		if(_board != _right) _legals.push_back(RIGHT);
+
+		if(!_legals.size()) {
+			_legals.clear();
+			_legals.shrink_to_fit();
+		}
+
+		return _legals;
 	}
 	
 	bool isGameOver() const {
-		return !(_board != execute_up(_board) or _board != execute_down(_board)
-			or _board != execute_left(_board) or _board != execute_right(_board));
+		return legalActions().empty();
 	}
 
 
@@ -340,12 +367,29 @@ public:
 public:
 	GameBoard& operator=(const GameBoard& obj) {
 		_board = obj._board;
+
+
+
+		clearCache();
+
+
+
 		return *this;
 	}
 
-	GameBoard(const GameBoard& obj): _board(obj._board) {}
-	GameBoard(board_t state): _board(state) {}
-	GameBoard(): _board(make_init_board()) {}
+	GameBoard(const GameBoard& obj): _board(obj._board), _legals() {
+		_legals.reserve(4);
+	}
+
+
+
+	GameBoard(board_t state): _board(state), _legals() {
+		_legals.reserve(4);
+	}
+
+	GameBoard(): _board(make_init_board()), _legals() {
+		_legals.reserve(4);
+	}
 };
 
 std::ostream& operator<<(std::ostream& os, const GameBoard& obj);
