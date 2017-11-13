@@ -1,10 +1,10 @@
 #include "Evaluator.h"
 
-float BaselineEvaluator::_heur_score_table[65536];
-const float* BaselineEvaluator::heur_score_table = BaselineEvaluator::_heur_score_table;
-bool BaselineEvaluator::table_initializer = (init_table(), true);
+float HeuristicEvaluator::_heur_score_table[65536];
+const float* HeuristicEvaluator::heur_score_table = HeuristicEvaluator::_heur_score_table;
+bool HeuristicEvaluator::table_initializer = (init_table(), true);
 
-void BaselineEvaluator::init_table() {
+void HeuristicEvaluator::init_table() {
     for (unsigned row = 0; row < 65536; ++row) {
         unsigned line[4] = {
                 (row >>  0) & 0xf,
@@ -57,7 +57,7 @@ void BaselineEvaluator::init_table() {
     }
 }
 
-BaselineEvaluator::~BaselineEvaluator() {
+HeuristicEvaluator::~HeuristicEvaluator() {
 	//! Makes sure that table_initializer is initialized and init_tables called.
 	(void) table_initializer;
 }

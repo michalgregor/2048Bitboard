@@ -71,6 +71,8 @@ public:
 	static constexpr unsigned int ROWS = 4;
 	static constexpr unsigned int COLS = 4;
 
+	static constexpr unsigned int PROB4_TIMES_100 = 10;
+
 public:
 	static inline board_t unpack_col(row_t row) {
 		board_t tmp = row;
@@ -86,7 +88,7 @@ public:
 };
 
 class BoardMethods: public AuxTableBase {
-protected:
+public:
 	static float score_helper(board_t board, const float* table) {
 		return table[(board >>  0) & ROW_MASK] +
 		       table[(board >> 16) & ROW_MASK] +
@@ -145,11 +147,10 @@ public:
 	}
 
 	static board_t draw_tile() {
-		return (unif_random(10) < 9) ? 1 : 2;
+		return (unif_random(100) < PROB4_TIMES_100) ? 2 : 1;
 	}
 
-	static board_t insert_tile_rand(board_t board, board_t tile) {
-		int index = unif_random(count_empty(board));
+	static board_t insert_tile(board_t board, board_t tile, unsigned int index) {
 		board_t tmp = board;
 		while (true) {
 		    while ((tmp & 0xf) != 0) {
@@ -162,6 +163,11 @@ public:
 		    tile <<= 4;
 		}
 		return board | tile;
+	}
+
+	inline static board_t insert_tile_rand(board_t board, board_t tile) {
+		int index = unif_random(count_empty(board));
+		return insert_tile(board, tile, index);
 	}
 
 	static board_t make_init_board() {
@@ -250,10 +256,6 @@ public:
 private:
 	board_t _board;
 
-
-
-
-
 protected:
 	static inline board_t execute_deterministic_move(board_t board, GameAction action) {
 		switch(action) {
@@ -285,15 +287,20 @@ public:
 	inline int distinctTilesCount() const {return count_distinct_tiles(_board);}
 	inline GameBoard transpose() const {return transpose_board(_board);}
 
-	inline void move(GameAction action) {
+	inline GameBoard next(GameAction action) const {
 		auto new_board = execute_deterministic_move(_board, action);
 		if(new_board == _board) {
-			/** Do we throw exceptions on illegal actions? **/
+			/** If nothing changes, the action is not legal, we do nothing. **/
 		} else {
-			_board = insert_tile_rand(new_board, draw_tile());
+			new_board = insert_tile_rand(new_board, draw_tile());
 		}
+
+		return GameBoard(new_board);
 	}
 
+	//! Returns all possible next states for the specified action along with
+	//! their respective probabilities.
+	std::vector<std::pair<GameBoard, float> > allNexts(GameAction action) const;
 	inline float getScore() const {return score_board(_board);}
 
 	inline board_t getBoardState() const {return _board;}
@@ -316,9 +323,6 @@ public:
 		return get_element(_board, row, col);
 	}
 
-
-
-
 	std::vector<GameAction> legalActions() const {
 		std::vector<GameAction> legals; legals.reserve(4);
 		if(_board != execute_up(_board)) legals.push_back(UP);
@@ -333,11 +337,10 @@ public:
 			or _board != execute_left(_board) or _board != execute_right(_board));
 	}
 
-
-
-
-
 public:
+	inline bool operator==(const GameBoard& obj) const {return _board == obj._board;}
+	inline bool operator!=(const GameBoard& obj) const {return _board != obj._board;}
+
 	GameBoard& operator=(const GameBoard& obj) {
 		_board = obj._board;
 		return *this;

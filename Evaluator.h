@@ -3,7 +3,14 @@
 
 #include "GameBoard.h"
 
-class BaselineEvaluator {
+class ScoreEvaluator {
+public:
+	float evaluate(const GameBoard& board) const {
+		return board.getScore();
+	}
+};
+
+class HeuristicEvaluator {
 private:
 	static float _heur_score_table[65536];
 	static bool table_initializer;
@@ -22,10 +29,16 @@ public:
 	static constexpr float SCORE_EMPTY_WEIGHT = 270.0f;
 
 public:
-	float evaluate(const GameBoard& board) const;
+	float evaluate(const GameBoard& board) const {
+        return BoardMethods::score_helper(
+                    board.getBoardState(), heur_score_table
+               ) + BoardMethods::score_helper(
+                    board.transpose().getBoardState(), heur_score_table
+               );
+    }
 
 public:
-	~BaselineEvaluator();
+	~HeuristicEvaluator();
 };
 
 
