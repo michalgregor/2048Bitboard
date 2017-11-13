@@ -256,7 +256,7 @@ public:
 private:
 	board_t _board;
 
-protected:
+public:
 	static inline board_t execute_deterministic_move(board_t board, GameAction action) {
 		switch(action) {
 		case UP:

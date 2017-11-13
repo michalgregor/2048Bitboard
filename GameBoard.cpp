@@ -104,35 +104,15 @@ std::vector<std::pair<GameBoard, float> > GameBoard::allNexts(GameAction action)
 	prob4 /= empty;
 	prob2 /= empty;
 
-	for(unsigned int i = 0; i < empty; i++) {
+	for(unsigned int i = 0; i < empty*2; i+=2) {
 		// tile 2
 		nexts[i].first = insert_tile(det_board, 1, i);
 		nexts[i].second = prob2;
 
 		// tile 4
-		nexts[i].first = insert_tile(det_board, 2, i);
-		nexts[i].second = prob4;
+		nexts[i+1].first = insert_tile(det_board, 2, i);
+		nexts[i+1].second = prob4;
 	}
-
-
-
-
-//		board_t tmp = board;
-//		while (true) {
-//		    while ((tmp & 0xf) != 0) {
-//		        tmp >>= 4;
-//		        tile <<= 4;
-//		    }
-//		    if (index == 0) break;
-//		    --index;
-//		    tmp >>= 4;
-//		    tile <<= 4;
-//		}
-//		return board | tile;
-
-
-
-
 
 	return nexts;
 }
