@@ -25,9 +25,14 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 #####################################################################
 
 # ncurses
-FIND_PACKAGE(Curses REQUIRED)
-include_directories(${CURSES_INCLUDE_DIR})
-SET(LIBS ${LIBS} ${CURSES_LIBRARIES})
+FIND_PACKAGE(Curses QUIET)
+
+if(Curses_FOUND)
+	include_directories(${CURSES_INCLUDE_DIR})
+	SET(LIBS ${LIBS} ${CURSES_LIBRARIES})
+else()
+	add_definitions(-DNO_NCURSES)
+endif()
 
 #####################################################################
 #           C++11 support

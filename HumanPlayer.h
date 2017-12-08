@@ -1,6 +1,8 @@
 #ifndef HUMAN_PLAYER_H
 #define HUMAN_PLAYER_H
 
+#ifndef NO_NCURSES
+
 #include "GameBoard.h"
 #include "ncurses_stream.h"
 
@@ -47,5 +49,5 @@ public:
 	}
 };
 
+#endif // NO_NCURSES
 #endif // HUMAN_PLAYER_H
-

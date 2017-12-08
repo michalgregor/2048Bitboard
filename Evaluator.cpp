@@ -57,7 +57,3 @@ void HeuristicEvaluator::init_table() {
     }
 }
 
-HeuristicEvaluator::~HeuristicEvaluator() {
-	//! Makes sure that table_initializer is initialized and init_tables called.
-	(void) table_initializer;
-}

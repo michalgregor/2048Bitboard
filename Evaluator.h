@@ -16,10 +16,10 @@ private:
 	static bool table_initializer;
 
 protected:
-	static const float* heur_score_table;
 	static void init_table();
 
 public:
+    static const float* heur_score_table;
 	static constexpr float SCORE_LOST_PENALTY = 200000.0f;
 	static constexpr float SCORE_MONOTONICITY_POWER = 4.0f;
 	static constexpr float SCORE_MONOTONICITY_WEIGHT = 47.0f;
@@ -38,7 +38,10 @@ public:
     }
 
 public:
-	~HeuristicEvaluator();
+	~HeuristicEvaluator() {
+        //! Makes sure that table_initializer is initialized and init_tables called.
+    	(void) table_initializer;
+    }
 };
 
 

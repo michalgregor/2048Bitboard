@@ -1,6 +1,8 @@
 #ifndef NCURSES_STREAM_H
 #define NCURSES_STREAM_H
 
+#ifndef NO_NCURSES
+
 #include <ncurses.h>
 
 class ncursesbuf: public std::streambuf {
@@ -35,4 +37,5 @@ public:
 	}
 };
 
+#endif // NO_NCURSES
 #endif // NCURSES_STREAM_H

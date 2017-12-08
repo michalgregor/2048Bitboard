@@ -3,10 +3,18 @@
 
 #include <random>
 #include <cstdlib>
+#include <ctime>
 #include <stdexcept>
 
 //! Returns the default random engine.
-std::default_random_engine& default_generator();
+inline std::default_random_engine& default_generator() {
+	#if defined(__MINGW32_MAJOR_VERSION) && __MINGW32_MAJOR_VERSION < 5
+		static std::default_random_engine generator(time(NULL));
+	#else
+		static std::default_random_engine generator(std::random_device{}());
+	#endif
+	return generator;
+}
 
 //! Returns a random number in [0..n-1].
 inline unsigned int unif_random(unsigned int n) {
