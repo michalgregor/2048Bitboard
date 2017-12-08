@@ -84,7 +84,9 @@ public:
 	}
 
 public:
-	~AuxTableBase();
+	~AuxTableBase() {
+        (void) table_initializer;
+    }
 };
 
 class BoardMethods: public AuxTableBase {

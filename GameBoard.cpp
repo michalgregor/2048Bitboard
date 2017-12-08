@@ -70,11 +70,6 @@ void AuxTableBase::init_tables() {
     }
 }
 
-AuxTableBase::~AuxTableBase() {
-	//! Makes sure that table_initializer is initialized and init_tables called.
-	(void) table_initializer;
-}
-
 int BoardMethods::count_empty(board_t x) {
     x |= (x >> 2) & 0x3333333333333333ULL;
     x |= (x >> 1);
